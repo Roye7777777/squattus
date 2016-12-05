@@ -2,7 +2,6 @@ package nl.roy.brabantflamand.service;
 
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 
 //import org.bson.types.ObjectId;
@@ -10,7 +9,6 @@ import org.bson.types.ObjectId;
 
 import com.google.inject.Inject;
 
-import io.dropwizard.auth.Auth;
 import nl.roy.brabantflamand.model.Questions;
 import nl.roy.brabantflamand.model.Users;
 import nl.roy.brabantflamand.persistence.QuestionDAO;
@@ -67,7 +65,7 @@ public class QuestionService extends BaseService
     // Put question
     public void putQuestion( String id, QuestionView view, Users authenticator )
     {    	
-    	checkIfOwnId(authenticator, id);
+    	checkIfOwnId(authenticator);
     	
     	questionDAO.alter(setPut(id, view));
     }
@@ -80,10 +78,7 @@ public class QuestionService extends BaseService
     
 	// Delete one document from questions by id
     public void delete( String id, Users authenticator ) {
-    	checkIfOwnId(authenticator, id);
-    	
-    	if (!isAlphanumeric(id)) 
-    		return;
+    	checkIfOwnId(authenticator);
     	
     	ObjectId objectId = new ObjectId();
     	if ( !questionDAO.checkIfQuestion(objectId) )
@@ -97,12 +92,9 @@ public class QuestionService extends BaseService
      * Misc
      * 
      */
-    private void checkIfOwnId(Users authenticator, String id) {
-    	if (!authenticator.getRoles().contains("ADMIN")) {
-    		// The user with the auth may only get his own document
-	    	if (! authenticator.getId().toString().equals(id))
-	        	return;
-    	}
+    private void checkIfOwnId(Users authenticator) {
+    	if (!authenticator.hasRole("ADMIN"))
+			return;
 	}
     
     private Questions setPost (QuestionView view) {
@@ -166,13 +158,4 @@ public class QuestionService extends BaseService
     	
     	return question;
     }
-	
-	private boolean isAlphanumeric(String id) 
-	{
-		// check if id is empty, if it doesn't contain 'objectid' (which is not necessary) and if the pattern applies	
-		String pattern = "^[a-zA-Z0-9]*$"; //"^[\\p{L}\\p{Digit}]*$"
-		if (id.isEmpty() || id.toLowerCase().indexOf("objectid") != -1 || !id.matches(pattern))
-			return false;
-		return true;
-	}
 }

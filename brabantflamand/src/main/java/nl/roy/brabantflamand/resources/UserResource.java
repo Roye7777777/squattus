@@ -97,9 +97,7 @@ public class UserResource extends BaseResource {
 	// Return one document from users by userId
 	public Users getById( @PathParam("id") String id, @Auth Users authenticator )
 	{
-		if(!id.isEmpty())
-			return userService.getById(authenticator, id);
-		return null;
+		return userService.getById(authenticator, id);
 	}
 
 	@GET
@@ -107,10 +105,7 @@ public class UserResource extends BaseResource {
 	@Path("/{id}/exercise_diaries")
 	// Return one document from users by userId
 	public List<Exercise_Diaries> getExerciseDiaries( @PathParam("id") String id, @Auth Users authenticator)
-	{
-		if (id.isEmpty())
-			return null;
-		
+	{		
 		return userService.getExerciseDiaries(authenticator, id);
 	}
 	
@@ -119,10 +114,7 @@ public class UserResource extends BaseResource {
 	@Path("/{id}/food_diaries")
 	// Return one document from users by userId
 	public List<Food_Diaries> getFoodDiaries( @PathParam("id") String id, @Auth Users authenticator)
-	{
-		if (id.isEmpty())
-			return null;
-		
+	{		
 		return userService.getFoodDiaries(authenticator, id);
 	}
 		
@@ -132,7 +124,7 @@ public class UserResource extends BaseResource {
 	// Return one document from users by userId
 	public Exercise_Diaries getExerciseDiary( @PathParam("id") String id, @PathParam("week_nr") String week, @Auth Users authenticator)
 	{
-		if (id.isEmpty() || !isNumericAndNotEmpty(week))
+		if (!isNumericAndNotEmpty(week))
 			return null;
 		
 		return userService.getExerciseDiary(authenticator, id, Integer.parseInt(week));
@@ -144,7 +136,7 @@ public class UserResource extends BaseResource {
 	// Return one document from users by userId 
 	public Food_Diaries getFoodDiary( @PathParam("id") String id, @PathParam("week_nr") String week, @Auth Users authenticator)
 	{
-		if (id.isEmpty() || !isNumericAndNotEmpty(week))
+		if (!isNumericAndNotEmpty(week))
 			return null;
 		
 		return userService.getFoodDiary(authenticator, id, Integer.parseInt(week));
@@ -155,10 +147,7 @@ public class UserResource extends BaseResource {
 	@Path("/{id}/scores")
 	// Return scores from users by userId
 	public List<Scores> getScores( @PathParam("id") String id, @Auth Users authenticator) 
-	{
-		if (id.isEmpty())
-			return null;
-		
+	{	
 		return userService.getScores(authenticator, id);
 	}
 	
@@ -168,7 +157,7 @@ public class UserResource extends BaseResource {
 	// Return score from users by userId and week
 	public Scores getScore( @PathParam("id") String id, @PathParam("week_nr") String week, @Auth Users authenticator) 
 	{
-		if (id.isEmpty() || !isNumericAndNotEmpty(week))
+		if (!isNumericAndNotEmpty(week))
 			return null;
 		
 		return userService.getScore(authenticator, id, Integer.parseInt(week));
@@ -215,7 +204,7 @@ public class UserResource extends BaseResource {
 	// Update password one or more document(s) by userId 
 	public Response put( @PathParam("id") String id, UserView view, @Auth Users authenticator)
 	{
-		if (id.isEmpty() || view == null)
+		if (view == null)
 			return Response.status(400).build();
 		
 		userService.putOne(authenticator, id, view);
@@ -228,7 +217,7 @@ public class UserResource extends BaseResource {
 	// Update roles for user
 	public Response putRoles( @PathParam("id") String id, UserView view)
 	{
-		if (id.isEmpty() || view == null)
+		if (view == null)
 			return Response.status(400).build();
 		
 		userService.putRolesForOne(id, view);
@@ -242,7 +231,7 @@ public class UserResource extends BaseResource {
 	// Update exercise diary
 	public Response putExercise_diary( @PathParam("id") String id, @PathParam("week_nr") String week, Exercise_DiaryView view, @Auth Users authenticator )
 	{
-		if (id.isEmpty() || !isNumericAndNotEmpty(week) || view == null)
+		if (!isNumericAndNotEmpty(week) || view == null)
 			return Response.status(400).build();
 		
 		userService.putExercise_diary(id, Integer.parseInt(week), view, authenticator);
@@ -256,7 +245,7 @@ public class UserResource extends BaseResource {
 	// Update food diary
 	public Response putFood_diary( @PathParam("id") String id, @PathParam("week_nr") String week, Food_DiaryView view, @Auth Users authenticator )
 	{
-		if (id.isEmpty() || !isNumericAndNotEmpty(week) || view == null)
+		if (!isNumericAndNotEmpty(week) || view == null)
 			return Response.status(400).build();
 		
 		userService.putFood_diary(id, Integer.parseInt(week), view, authenticator);
@@ -270,7 +259,7 @@ public class UserResource extends BaseResource {
 	// Calculate the score of a quiz the user has sent
 	public Response sendScore(@PathParam("id") String id, @PathParam("week_nr") String week, AnswerView view, @Auth Users authenticator) 
 	{
-		if (id.isEmpty() || !isNumericAndNotEmpty(week) || view == null)
+		if (!isNumericAndNotEmpty(week) || view == null)
 			return Response.status(400).build();
 		
 		userService.calculateScore(id, Integer.parseInt(week), view, authenticator);
@@ -289,9 +278,6 @@ public class UserResource extends BaseResource {
 	// Delete one document from users by id
 	public Response deleteUser( @PathParam("id") String id)
 	{
-		if (id.isEmpty()) 
-			return Response.status(400).build();
-		
 		userService.deleteUser(id);
 		return Response.status(200).build();
 	}

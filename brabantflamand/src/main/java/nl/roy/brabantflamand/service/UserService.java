@@ -3,8 +3,6 @@ package nl.roy.brabantflamand.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.core.Response;
-
 //import org.bson.types.ObjectId;
 //import org.mongodb.morphia.Datastore;
 
@@ -51,63 +49,49 @@ public class UserService extends BaseService
     // Return one document from users by userId (id)
     public Users getById( Users authenticator, String id )
     {
-		checkIfOwnId(authenticator, id);
-		if (!isAlphanumeric(id))
-			return null;
+		checkIfOwnId(authenticator);
 		
 		return userDAO.get( id );
     }
     
 	// Return users' exercise diaries
     public List<Exercise_Diaries> getExerciseDiaries( Users authenticator, String id ) {
-		checkIfOwnId(authenticator, id);
-		if (!isAlphanumeric(id))
-			return null;
+		checkIfOwnId(authenticator);
 		
     	return userDAO.getExerciseDiaries(id);
     }
     
 	// Return users' food diaries
     public List<Food_Diaries> getFoodDiaries( Users authenticator, String id ) {
-		checkIfOwnId(authenticator, id);
-		if (!isAlphanumeric(id))
-			return null;
+		checkIfOwnId(authenticator);
 		
     	return userDAO.getFoodDiaries(id);
     }
         
 	// Return users' exercise diary per week
     public Exercise_Diaries getExerciseDiary( Users authenticator, String id, int week_nr ) {
-		checkIfOwnId(authenticator, id);
-		if (!isAlphanumeric(id)) 
-			return null;
+		checkIfOwnId(authenticator);
 		
     	return userDAO.getExerciseDiary(id, week_nr);
     }
     
 	// Return users' food diary per week
     public Food_Diaries getFoodDiary( Users authenticator, String id, int week_nr ) {
-		checkIfOwnId(authenticator, id);
-		if (!isAlphanumeric(id))
-			return null;
+		checkIfOwnId(authenticator);
 		
     	return userDAO.getFoodDiary(id, week_nr);
     }
     
     // Get scores from users by userId
     public List<Scores> getScores(Users authenticator, String id) {
-		checkIfOwnId(authenticator, id);
-		if (!isAlphanumeric(id))
-			return null;
+		checkIfOwnId(authenticator);
 		
 		return userDAO.getScores(id);
 	}
 
     // Get score from users by userId and week
     public Scores getScore(Users authenticator, String id, int week_nr) {
-		checkIfOwnId(authenticator, id);
-		if (!isAlphanumeric(id))
-			return null;
+		checkIfOwnId(authenticator);
 		
 		return userDAO.getScore(id, week_nr);
 	}
@@ -139,18 +123,13 @@ public class UserService extends BaseService
     
     // Update password for one document, by userId. N.B.: roles and diaries can't be changed here. - user
     public void putOne( Users authenticator, String id, UserView view ) {
-		checkIfOwnId(authenticator, id);
-		if (!isAlphanumeric(id))
-			return;
+		checkIfOwnId(authenticator);
 		
     	userDAO.updateUser(setUser(userDAO.get(new ObjectId(id)), view));
     }
         
     // Update roles for user
-    public void putRolesForOne(String id, UserView view) {
-    	if (!isAlphanumeric(id))
-			return;
-    	
+    public void putRolesForOne(String id, UserView view) {	
     	Users user = userDAO.get(id);
     	if (view.roles != null)
     		user.setRoles(view.roles);
@@ -161,9 +140,7 @@ public class UserService extends BaseService
     // Update user exercise diary - user
     // TODO: cannot edit currently existing diary yet.
     public void putExercise_diary(String id, int week_nr, Exercise_DiaryView view, Users authenticator) {
-		checkIfOwnId(authenticator, id);
-    	if (!isAlphanumeric(id))
-			return;
+		checkIfOwnId(authenticator);
     	
     	Users user = userDAO.get(id);
     	
@@ -173,12 +150,9 @@ public class UserService extends BaseService
     // Update user exercise diary - user
     // TODO: cannot edit currently existing diary yet.
     public void putFood_diary(String id, int week_nr, Food_DiaryView view, Users authenticator) {
-		checkIfOwnId(authenticator, id);
-    	if (!isAlphanumeric(id))
-			return;
+		checkIfOwnId(authenticator);
     	
     	Users user = userDAO.get(id);
-    	
     	
     	userDAO.putFood_Diary(week_nr, view, user);
     }
@@ -186,9 +160,7 @@ public class UserService extends BaseService
     // Calculate score for user input from questions
     // TODO: cannot edit currently existing diary yet.
 	public void calculateScore(String id, int week_nr, AnswerView view, Users authenticator) {
-		checkIfOwnId(authenticator, id);
-		if (!isAlphanumeric(id))
-			return;
+		checkIfOwnId(authenticator);
 		
 		Users user = userDAO.get(id);
 		int score = questionDAO.calculateScore(week_nr, view);
@@ -203,10 +175,7 @@ public class UserService extends BaseService
      */
     
 	// Delete one document from users by id
-    public void deleteUser( String id ) {
-    	if (!isAlphanumeric(id))
-			return;
-    	
+    public void deleteUser( String id ) {    	
     	ObjectId objectId = new ObjectId(id);
     	if ( !userDAO.checkIfUser(objectId) )
     		return;
@@ -234,12 +203,9 @@ public class UserService extends BaseService
      * 
      */
     
-    private void checkIfOwnId(Users authenticator, String id) {
-    	if (!authenticator.getRoles().contains("ADMIN")) {
-    		// The user with the auth may only get his own document
-	    	if (! authenticator.getId().toString().equals(id))
-	        	return;
-    	}
+    private void checkIfOwnId(Users authenticator) {
+    	if (!authenticator.hasRole("ADMIN")) 
+    		return;
 	}
     
     private Users setNewUser(UserView view) {
@@ -277,13 +243,4 @@ public class UserService extends BaseService
     	
     	return user;
     }
-	
-	private boolean isAlphanumeric(String id) 
-	{
-		// check if id is empty, if it doesn't contain 'objectid' (which is not necessary) and if the pattern applies	
-		String pattern = "^[a-zA-Z0-9]*$"; //"^[\\p{L}\\p{Digit}]*$"
-		if (id.isEmpty() || id.toLowerCase().indexOf("objectid") != -1 || !id.matches(pattern))
-			return false;
-		return true;
-	}
 }
